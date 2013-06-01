@@ -462,7 +462,7 @@ func main() {
 
 	predicted := neuralNet.predict(input)
 	fmt.Println("predicted", predicted)
-	fmt.Println("expected", expected)
+	fmt.Println("First expected", expected)
 
 	shitty_weights := neuralNet.getAllWeights()
 	fmt.Println("shitty_weights", shitty_weights)
@@ -481,12 +481,50 @@ func main() {
 
 
 
-	new_weights := Gradient_descent(newWeights, .55, neuralNet)
+	// new_weights := Gradient_descent(newWeights, .001, neuralNet)
+	new_weights := Gradient_descent(newWeights, .001, neuralNet)
 	neuralNet.setAllWeights(new_weights)
 	success := neuralNet.predict(input)
 
 	fmt.Println("success", success)
+	fmt.Println("First expected", expected)
+
+	/// reset guess to new expected
+
+	input = []float64{0.0, 1.0}
+	expected = []float64{.2, .1}
+	success = neuralNet.predict(input)
+
+	fmt.Println("success?", success)
+	fmt.Println("Change expected", expected)
+	neuralNet.guess = expected
+
+	new_weights = Gradient_descent(new_weights, 1.0, neuralNet)
+
+	neuralNet.setAllWeights(new_weights)
+
+	success = neuralNet.predict(input)
+
+	fmt.Println("after grad desc, success?", success)
 	fmt.Println("expected", expected)
+
+	expected = []float64{.1, .9}
+	input = []float64{1.0, 0.0}
+	success = neuralNet.predict(input)
+	fmt.Println("first input still works well??", success)
+	fmt.Println("expected", expected)
+	neuralNet.guess = expected
+
+	// new_weights := Gradient_descent(newWeights, .001, neuralNet)
+	new_weights = Gradient_descent(new_weights, .001, neuralNet)
+	neuralNet.setAllWeights(new_weights)
+	success = neuralNet.predict(input)
+	fmt.Println("worky??", success)
+	fmt.Println("expected", expected)
+
+
+
+
 }
 
 // Multiplies `alpha` by every value in `vector2`, then
@@ -510,14 +548,15 @@ func Gradient_descent(guess_vector []float64, alpha float64, diff_func NeuralNet
 	last_guess := guess_vector
 
 	outputs = Scale_add(last_guess, diff_func.diff_of_f(last_guess), -alpha)
-	fmt.Println("outputs", outputs)
 	for {
 		if diff_func.is_converged(last_guess, outputs) {
 			break
 		}
 
 		last_guess = outputs
+
 		outputs = Scale_add(last_guess, diff_func.diff_of_f(last_guess), -alpha)
+
 	}
 	return
 }
